@@ -1,5 +1,6 @@
 module LambdaIOBasics where
 
+import Prelude hiding ((.))
 import Data.Int  (Int8, Int16, Int32, Int64)
 import Data.Bits (bitSizeMaybe)
 import Data.Char (chr, ord)
@@ -11,16 +12,16 @@ vinte = 20
 
 -- Inteiros com tamanhos
 numero8Bits :: Int8
-numero8Bits = 128
+numero8Bits = 25
 
 numero16Bits :: Int16
-numero16Bits = 32768
+numero16Bits = 1000
 
 numero32Bits :: Int32
-numero32Bits = 2147483648
+numero32Bits = 10 ^ 5
 
 numero64Bits :: Int64
-numero64Bits = 9223372036854775808
+numero64Bits = 10 ^ 10
 
 -- Integer: inteiro de tamanho arbitrário
 numeroMuitoGrande :: Integer
@@ -39,10 +40,10 @@ soma = (fromIntegral numero8Bits) + numero16Bits
 -- genéricas. Em geral é uma má prática escrever funções com tipos muito
 -- específicos.
 
-dobro :: Int16 -> Int16
+dobro :: (Num a) => a -> a
 dobro x = x * 2
 
-quadrado :: Int32 -> Int32
+quadrado :: (Num a) => a -> a
 quadrado x = x * x
 
 -- O tipo char representa um caractere Unicode.
@@ -78,8 +79,15 @@ igualALetraA _   = False
 
 -- funções podem ser recursivas
 numeroPar :: Int -> Bool
-numeroPar 0 = True
-numeroPar n = numeroPar (n - 2)
+numeroPar n
+  | n < 0     = numeroPar $ negate n
+  | otherwise = numeroPositivoPar n
+    where numeroPositivoPar 0 = True
+          numeroPositivoPar 1 = False
+          numeroPositivoPar n = numeroPositivoPar (n - 2)
+{-numeroPar 0 = True
+numeroPar 1 = False
+numeroPar n = numeroPar (n - 2)-}
 
 numeroParEficiente :: Int -> Bool
 numeroParEficiente x = x `mod` 2 == 0
@@ -89,11 +97,26 @@ numeroParEficiente x = x `mod` 2 == 0
 a +*+ b = (a + b) * (a + b)
 
 -- funções podem receber funções e retornar funções
-duasVezes :: (Int -> Int) -> Int -> Int
-duasVezes f x = f (f x)
+duasVezes :: (a -> a) -> a -> a
+duasVezes f = f . f
+
+proximoCaractere :: Char -> Char
+proximoCaractere = chr . (+1) . ord
+
+(.) :: (b -> c) -> (a -> b) -> a -> c
+f . g = \x -> f (g x)
+
+(|>) :: (a -> b) -> (b -> c) -> a -> c
+(|>) = flip (.)
 
 -- desafio:
 -- fazer uma função que aplica uma função qualquer número de
 -- vezes a um argumento
--- nVezes :: ?
--- nVezes = ?
+nVezes :: Integral i => i -> (a -> a) -> a -> a
+nVezes n f x
+  | n <= 0    = x
+  | otherwise = nVezes (n - 1) f (f x)
+
+for val end f
+  | end val   = val
+  | otherwise = for (f val) end f

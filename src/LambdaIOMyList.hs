@@ -1,5 +1,7 @@
 module LambdaIOMyList where
 
+import Prelude hiding (concat)
+
 data List a = Cons a (List a) | Nil
 
 concat :: List a -> List a -> List a
