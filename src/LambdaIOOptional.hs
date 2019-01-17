@@ -2,15 +2,17 @@ module LambdaIOOptional where
 
 -- tipos de dados são declarados usando "data"
 data Optional a = Empty | Full a
+  deriving Show
 
 -- podemos casar padrões em tipos de dados customizados
 hasValue :: Optional a -> Bool
 hasValue Empty    = False
-hasValue (Full a) = True
+hasValue (Full _) = True
 
 -- desafio: fazer uma função que pega o valor dentro de um opcional
--- getValue :: ?
--- getValue = ?
+getValue :: a -> Optional a -> a
+getValue _ (Full x) = x
+getValue d Empty    = d
 
 -- podemos operar sobre um opcional sem abrir ele
 over :: (a -> b) -> Optional a -> Optional b
@@ -23,11 +25,9 @@ makeOptional = Full
 
 -- podemos aplicar uma função dentro de um opcional a um valor
 applyOptional :: Optional (a -> b) -> Optional a -> Optional b
-
 applyOptional (Full f) (Full x) = Full (f x)
 applyOptional _        _        = Empty
 
--- podemos passar o valor de um opcional para uma função que retorna
--- um opcional
--- bindOptional :: (a -> Optional b) -> Optional a -> Optional b
--- bindOptional = ?
+flatMapOptional :: (a -> Optional b) -> Optional a -> Optional b
+flatMapOptional _ Empty    = Empty
+flatMapOptional f (Full x) = f x
